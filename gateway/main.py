@@ -28,6 +28,7 @@ except Exception as e:
 def validate(data):
 
     required = [
+        "ward_id",
         "bed_id",
         "heart_rate",
         "spo2",
@@ -42,9 +43,41 @@ def validate(data):
 
     for field in required:
         if field not in data:
+            print("Missing field:", field)
             return False
 
+    if not str(data["bed_id"]).strip():
+        return False
+
+    try:
+        int(data["heart_rate"])
+        float(data["spo2"])
+        float(data["body_temp"])
+        int(data["respiration_rate"])
+        int(data["systolic_bp"])
+        int(data["diastolic_bp"])
+        int(data["timestamp"])
+    except Exception:
+        return False
+
     return True
+
+
+def normalize(data):
+
+    return {
+        "ward_id": str(data["ward_id"]),
+        "bed_id": str(data["bed_id"]),
+        "heart_rate": int(data["heart_rate"]),
+        "spo2": float(data["spo2"]),
+        "body_temp": float(data["body_temp"]),
+        "respiration_rate": int(data["respiration_rate"]),
+        "systolic_bp": int(data["systolic_bp"]),
+        "diastolic_bp": int(data["diastolic_bp"]),
+        "bed_occupancy": bool(data["bed_occupancy"]),
+        "fall_detected": bool(data["fall_detected"]),
+        "timestamp": int(data["timestamp"])
+    }
 
 
 def publish_event(client, bed_id, event):
@@ -86,18 +119,20 @@ def on_message(client, userdata, msg):
 
     try:
 
-        data = json.loads(msg.payload.decode())
+        raw_data = json.loads(msg.payload.decode())
 
-        if not validate(data):
+        if not validate(raw_data):
             print("Invalid telemetry")
             return
+
+        data = normalize(raw_data)
 
         bed_id = data["bed_id"]
 
         bed_states[bed_id] = data
 
         print("\n===== TELEMETRY =====")
-        print(bed_id)
+        print(f"Bed: {bed_id}")
         print(
             f"HR={data['heart_rate']} "
             f"SpO2={data['spo2']} "
@@ -146,6 +181,8 @@ client.connect(
     MQTT_PORT,
     60
 )
+
+print("Gateway started...")
 
 client.loop_forever()
 

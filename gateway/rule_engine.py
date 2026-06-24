@@ -83,7 +83,7 @@ class RuleEngine:
 
             events.append({
                 "bed_id": bed_id,
-                "event_type": "fall_detected",
+                "event_type": "fall",
                 "severity": "critical",
                 "value": 1,
                 "threshold": 1
