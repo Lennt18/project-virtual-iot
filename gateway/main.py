@@ -56,7 +56,7 @@ def validate(data):
         int(data["respiration_rate"])
         int(data["systolic_bp"])
         int(data["diastolic_bp"])
-        int(data["timestamp"])
+        str(data["timestamp"])
     except Exception:
         return False
 
@@ -76,7 +76,7 @@ def normalize(data):
         "diastolic_bp": int(data["diastolic_bp"]),
         "bed_occupancy": bool(data["bed_occupancy"]),
         "fall_detected": bool(data["fall_detected"]),
-        "timestamp": int(data["timestamp"])
+        "timestamp": str(data["timestamp"])
     }
 
 
